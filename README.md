@@ -41,15 +41,15 @@ The user can issue the following commands
 TODO
 
 ## Features
-[ ] Player can enter a unique name
-[ ] Player can select to Start the game or view the highscore
-[ ] Player can level up and grow stronger
-[ ] Player can move around
-[ ] Player can attack
-[ ] Player can pick up and use items (swords etc.)
-[ ] The completed dungeons and player information are saved into a file in order to display a highscore table
+- [ ] Player can enter a unique name
+- [ ] Player can select to Start the game or view the highscore
+- [ ] Player can level up and grow stronger
+- [ ] Player can move around
+- [ ] Player can attack
+- [ ] Player can pick up and use items (swords etc.)
+- [ ] The completed dungeons and player information are saved into a file in order to display a highscore table
 
 ## Optional
-[ ] Randomly generated dungeons
-[ ] Randomly placed items and monsters
-[ ] Save and load game states
+- [ ] Randomly generated dungeons
+- [ ] Randomly placed items and monsters
+- [ ] Save and load game states
