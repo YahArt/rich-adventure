@@ -4,11 +4,12 @@ from rich.text import Text
 from rich.panel import Panel
 from rich.table import Table
 from os import system, name
+import random
 
 console = Console()
 console_width = console.size.width
 text_center_format_expression = '{:^' + str(console_width) + '}'
-choices = ["Start the game", "View High Score"]
+choices = ["Start the game", "View High Score", "Random dungeon Generator"]
 player = {
 	"name": "",
 	"attack": 15,
@@ -19,7 +20,6 @@ player = {
 	"col_index": 5,
 	"symbol": "x"
 }
-quit = False
 
 # Assume we are on a UNIX system per default
 clear_command = 'clear'
@@ -28,20 +28,64 @@ if name == 'nt':
 	clear_command = 'cls'
 
 
-def generate_random_dungeon():
-	# TODO: Try generating dungeon with Drunkwards Way algorithm...
-	dungeon = [
-		["*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*"],
-		["*", ".", ".", ".", ".", ".", ".", ".", ".", ".", "*"],
-		["*", ".", ".", ".", ".", ".", ".", ".", ".", ".", "*"],
-		["*", ".", ".", ".", ".", ".", ".", ".", ".", ".", "*"],
-		["*", ".", ".", ".", ".", ".", ".", ".", ".", ".", "*"],
-		["*", ".", ".", ".", ".", ".", ".", ".", ".", ".", "*"],
-		["*", ".", ".", ".", ".", ".", ".", ".", ".", ".", "*"],
-		["*", ".", ".", ".", ".", ".", ".", ".", ".", ".", "*"],
-		["*", ".", ".", ".", ".", ".", ".", ".", ".", ".", "*"],
-		["*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*"],
-	]
+def generate_full_dungeon(width, height):
+	dungeon = []
+	for i in range(height):
+		row = []
+		for j in range(width):
+			row.append("*")
+		dungeon.append(row)
+	return dungeon
+
+
+def get_number_between(min, max, number):
+	if number < min:
+		return min
+	elif number > max:
+		return max
+	return number
+
+def generate_random_dungeon(width, height, number_of_empty_cells):
+	# Generating dungeon with Drunkwards Way algorithm...
+	# Pick a random cell on the grid as a starting point
+	# If we have carved out enough empty spots, we are done...
+	# Walk one step in a random direction (north, south, east, west) and carve out a new spot
+	# Repeat until number of empty cells have been reached...
+	
+	# Make a full dungeon (only walls)
+	dungeon = generate_full_dungeon(width, height)
+
+	current_empty_cells = 0
+
+	# Choose a random starting point
+	starting_point_x = random.randint(0, width - 1)
+	starting_point_y = random.randint(0, height - 1)
+
+	directions = ["south", "east", "north", "west"]
+
+	while current_empty_cells < number_of_empty_cells:
+		# Choose a random direction
+		random_direction_index = random.randint(0, len(directions) - 1)
+
+		if directions[random_direction_index] == "south":
+			starting_point_y = starting_point_y + 1
+		elif directions[random_direction_index] == "east":
+			starting_point_x = starting_point_x + 1
+		elif directions[random_direction_index] == "north":
+			starting_point_y = starting_point_y - 1
+		elif directions[random_direction_index] == "west":
+			starting_point_x = starting_point_x - 1
+
+		# Make sure that we do not go out of bounds
+		starting_point_x = get_number_between(0, width - 1, starting_point_x)
+		starting_point_y = get_number_between(0, height - 1, starting_point_y)
+
+		# Carve out an empty spot but only if it is not empty already
+		if dungeon[starting_point_y][starting_point_x] != ".":
+			dungeon[starting_point_y][starting_point_x] = "."
+			current_empty_cells = current_empty_cells + 1
+
+	print(current_empty_cells)
 
 	return dungeon
 
@@ -122,9 +166,11 @@ def draw_player_information():
 	console.print(player_table)
 
 def start_game():
-	dungeon = generate_random_dungeon()
+	dungeon = generate_random_dungeon(15, 15, 150)
 	introduction()
 	print_new_lines(2)
+
+	quit = False
 	while not quit:
 		system(clear_command)
 		draw_map(dungeon)
@@ -149,7 +195,6 @@ def start_game():
 		# Move left
 		elif action.lower() == "a":
 			player["col_index"] = player["col_index"] - 1
-
 
 
 def view_highscore():
@@ -184,3 +229,15 @@ if selection == 1:
 # View High Score
 elif selection == 2:
 	view_highscore()
+# Random dungeon generator
+elif selection == 3:
+	number_of_dungeons = int(console.input("How many random dungeons should be generated: "))
+	width = int(console.input("How many cells for the width : "))
+	height = int(console.input("How many cells for the height : "))
+	empty = int(console.input("How many empty cells : "))
+
+	for i in range(number_of_dungeons):
+		dungeon = generate_random_dungeon(width, height, empty)
+		console.print(Panel(center_text("Dungeon # " + str(i + 1))))
+		draw_map(dungeon)
+		print_new_lines(1)
